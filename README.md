@@ -1,27 +1,45 @@
-JS Type Checker
-===============
+Object Type Check
+=================
 
 Specifically this is for JSON to JS type checking, typically from URL calls.
 For better type checking, probably using json-schema is what you want
 
-Okay, actually looks pretty good, I want to support the optional spec too to some degree
+I got the inspiration from flow for compile time but not runtime checking, and I wanted to do some runtime checking, so I made this
 
-* Optional types-> array of types, just do the array of types
-* Includes enums + literal types
+TODO: Explain how this works cause its pretty simple
 
-* So first, take stt and convert to array, where type is the split '|' but all other params are equal
-    * this will not support array
-    * actually its manually definable so its fine, just check if is array then do stuff
-* Literals: add a literal type - list of primitives, add a 'values' field
+Installation
+-------------
+yarn add object-type-check
 
-Also have option to check for extra params
+Usage
+-----
+```javascript
+const Schema = require('object-type-check')
 
-* Object.keys(resp).every(k=>type[k])
-
-
-Given what this does, schema verification is probably a big deal
-
-// Next: Should seperate out in to steps, 
-// 1. validate schema
-// 2. parse to proper schema type
-// 3. Checker just checks against schema
+const schema = {
+    User: {
+        id: 'number',
+        name: 'string',
+        age: 'string|number',
+        country: 'string?',
+        isActive: '?boolean',
+    }
+}
+const matcher = new Schema(schema)
+// this throws on error
+matcher.check('User', {
+    id: 123
+    name: 'Jules'
+    age: '23'
+    isActive: null
+})
+// this doesn't throw
+const isValid = matcher.check('User', {
+    id: 123,
+    name: 'Jules',
+    age: '23',
+    country: 123,
+    isActive: null,
+})
+```
