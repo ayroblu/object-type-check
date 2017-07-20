@@ -9,6 +9,7 @@ const schema = {
     name: {type: 'string'},
     age: {type: 'number'},
     country: {type: 'string', isOptional: true},
+    isActive: {type: 'boolean', isNullable: true, isOptional: true},
   },
   GpsUser:{
     name: {type: 'string'},
@@ -32,6 +33,8 @@ describe('Correctly checks types', ()=>{
     ['checks basic object', 'Basic', {name: 'hi'}]
   , ['checks user object no country', 'User', {name: 'hi', age: 3}]
   , ['checks user object no country', 'User', {name: 'hi', age: 3, country: 'NZ'}]
+  , ['checks user object null active', 'User', {name: 'hi', age: 3, country: 'NZ', isActive: null}]
+  , ['checks user object active', 'User', {name: 'hi', age: 3, country: 'NZ', isActive: true}]
   , ['checks gps user', 'GpsUser', {name: 'hi', gps: {latitude: 3, longitude: 3}}]
   , ['checks array user', 'ArrayUser', {name: 'hi', thoughts: ['Bro', 'cute']}]
   ].forEach(([name, type, o])=>{
