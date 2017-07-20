@@ -21,11 +21,19 @@ const schema = {
   },
   ArrayUser:{
     name: {type: 'string'},
-    thoughts: {type: 'string', isArray: true},
+    thoughts: {type: 'string', array: true},
   },
   ArrayGpsUser:{
     name: {type: 'string'},
-    locations: {type: 'Gps', isArray: true},
+    locations: {type: 'Gps', array: true},
+  },
+  ArrayArrayGpsUser:{
+    name: {type: 'string'},
+    locationsArray: {type: 'Gps', array: 2},
+  },
+  ArrayGpsArrayGpsUser:{
+    name: {type: 'string'},
+    locationsArray: {type: 'ArrayGpsUser', array: true},
   },
 }
 describe('Correctly checks types', ()=>{
@@ -37,11 +45,34 @@ describe('Correctly checks types', ()=>{
   , ['checks user object active', 'User', {name: 'hi', age: 3, country: 'NZ', isActive: true}]
   , ['checks gps user', 'GpsUser', {name: 'hi', gps: {latitude: 3, longitude: 3}}]
   , ['checks array user', 'ArrayUser', {name: 'hi', thoughts: ['Bro', 'cute']}]
+  , ['checks array user empty array', 'ArrayUser', {name: 'hi', thoughts: []}]
   , ['checks array gps user', 'ArrayGpsUser', {
       name: 'hi', locations: [{
         latitude: 23, longitude: 13,
       }, {
         latitude: 23, longitude: 135,
+      }]
+    }]
+  , ['checks nested array gps user', 'ArrayArrayGpsUser', {
+      name: 'hi', locationsArray: [[{
+        latitude: 23, longitude: 13,
+      }, {
+        latitude: 23, longitude: 135,
+      }], [{
+        latitude: 23, longitude: 13,
+      }, {
+        latitude: 23, longitude: 135,
+      }]]
+    }]
+  , ['checks array gps user with sub array', 'ArrayGpsArrayGpsUser', {
+      name: 'hi',
+      locationsArray: [{
+        name: 'first',
+        locations: [{
+          latitude: 23, longitude: 13,
+        }, {
+          latitude: 23, longitude: 135,
+        }]
       }]
     }]
   ].forEach(([name, type, o])=>{
@@ -58,8 +89,18 @@ describe('Correctly checks invalid types', ()=>{
     ['checks null basic object', 'Basic', {name: null}]
   , ['checks undefined basic object', 'Basic', {name: undefined}]
   , ['checks missing user object', 'User', {name: 'hi'}]
+  , ['checks user object invalid active', 'User', {name: 'hi', age: 3, country: 'NZ', isActive: '3'}]
   , ['checks gps user', 'GpsUser', {name: 'hi', gps: {latitude: 3, longitude: 'hi'}}]
+  , ['checks gps user missing', 'GpsUser', {name: 'hi', gps: {latitude: 3}}]
   , ['checks invalid array user', 'ArrayUser', {name: 'hi', thoughts: [3, 'cute']}]
+  , ['checks array user no array', 'ArrayUser', {name: 'hi', thoughts: {}}]
+  , ['checks array gps user second missing', 'ArrayGpsUser', {
+      name: 'hi', locations: [{
+        latitude: 23, longitude: 13,
+      }, {
+        latitude: 23
+      }]
+    }]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{

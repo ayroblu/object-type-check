@@ -41,36 +41,43 @@ function checkType(schema, typeName, resp){
   const schemaType = schema[typeName]
   if (!schemaType) throw new Error('Type not found')
   Object.keys(schemaType).forEach(k=>{
-    const {isArray, type} = schemaType[k]
+    const {array, type} = schemaType[k]
 
     const oType = /^[A-Z]/.test(type)
-    if (isArray) {
-      if (!Array.isArray(resp[k])) {
-        throw new Error(`${k} should be an array`)
-      }
-      resp[k].forEach(r=>{
-        if (oType){
-          checkType(schema, type, r)
-          return
-        }
-        const validType = isValidType(schemaType[k], r)
-
-        if (!validType) {
-          throw new Error(`Invalid array type on ${k}, expected ${type}`)
-        }
+    if (array) {
+      const arrVal = typeof array === 'number' ? array : 1
+      recurFunc(resp[k], k, arrVal, r=>{
+        checkTypeValidity(schema, schemaType, k, r)
       })
     } else {
-      if (oType){
-        checkType(schema, type, resp[k])
-        return
-      }
-      const validType = isValidType(schemaType[k], resp[k])
-      if (!validType) {
-        throw new Error(`Invalid type on ${k}, expected ${type}`)
-      }
+      checkTypeValidity(schema, schemaType, k, resp[k])
     }
   })
   return true
+}
+function checkTypeValidity(schema, schemaType, k, o){
+  const {type} = schemaType[k]
+  const oType = /^[A-Z]/.test(type)
+  if (oType){
+    checkType(schema, type, o)
+    return
+  }
+  const validType = isValidType(schemaType[k], o)
+  if (!validType) {
+    throw new Error(`Invalid type on ${k}, expected ${type}`)
+  }
+}
+function recurFunc(o, k, depth, func){
+  if (!Array.isArray(o)) {
+    throw new Error(`${k} should be an array`)
+  }
+  o.forEach(v=>{
+    if (depth > 1){
+      recurFunc(v, k, depth-1, func)
+    } else {
+      func(v)
+    }
+  })
 }
 function isValidType(typeDef, o){
   const {isNullable, isOptional, type} = typeDef
