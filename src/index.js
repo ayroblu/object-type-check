@@ -1,26 +1,26 @@
-const schema = {
-    User: {
-        name: {type: 'string'},
-        isActive: {type: 'boolean', isNullable: true, isOptional: true},
-        gps: {type: 'Gps'},
-        thing: {type: 'symbol'},
-        otherNames: {type: 'string', isArray: true},
-    },
-    Gps: {
-        latitude: {type: 'number'},
-        longitude: {type: 'number'},
-    },
-}
-const response = {
-  name: 'Yolo',
-  isActive: null,
-  gps: {latitude: 5, longitude: 4},
-  thing: 'whatever symbols'
-  otherNames: ['first', 'last']
-}
-
-const matcher = new Schema(schema)
-matcher.check('User', response)
+//const schema = {
+//    User: {
+//        name: {type: 'string'},
+//        isActive: {type: 'boolean', isNullable: true, isOptional: true},
+//        gps: {type: 'Gps'},
+//        thing: {type: 'symbol'},
+//        otherNames: {type: 'string', isArray: true},
+//    },
+//    Gps: {
+//        latitude: {type: 'number'},
+//        longitude: {type: 'number'},
+//    },
+//}
+//const response = {
+//  name: 'Yolo',
+//  isActive: null,
+//  gps: {latitude: 5, longitude: 4},
+//  thing: 'whatever symbols',
+//  otherNames: ['first', 'last']
+//}
+//
+//const matcher = new Schema(schema)
+//matcher.check('User', response)
 
 module.exports = class Schema {
   constructor(schema){
@@ -33,7 +33,7 @@ module.exports = class Schema {
     if (typeof o !== 'object') {
       throw new Error('Object not provided')
     }
-    checkType(this.schema, type, o)
+    return checkType(this.schema, type, o)
   }
 }
 
@@ -55,7 +55,7 @@ function checkType(schema, typeName, resp){
         const validType = isValidType(schemaType[k], r)
 
         if (!validType) {
-          throw new Error(`Invalid type on ${k}, expected ${type}`)
+          throw new Error(`Invalid array type on ${k}, expected ${type}`)
         }
       })
     } else {
@@ -65,6 +65,7 @@ function checkType(schema, typeName, resp){
       }
     }
   })
+  return true
 }
 function isValidType(typeDef, o){
   const {isNullable, isOptional, type} = typeDef
