@@ -45,6 +45,17 @@ const schema = {
     name: {type: 'string'},
     recur: {type: 'Recur', isOptional: true},
   },
+  Union: {
+    name: {type: 'string|number'},
+    age: {type: 'string|number'},
+  },
+  UnionUser: {
+    name: {type: 'string|number'},
+    gps: {type: 'string|Gps'},
+  },
+  Literal: {
+    name: {type: 'literal', values: ['first']},
+  },
 }
 describe('Correctly checks types', ()=>{
   [
@@ -94,6 +105,10 @@ describe('Correctly checks types', ()=>{
       , recur: { name: 'yolo' }
       }
     }]
+  , ['support union primitive types', 'Union', {name: 3, age: 'three'}]
+  , ['support union object types - string', 'UnionUser', {name: 3, gps: 'three'}]
+  , ['support union object types - object', 'UnionUser', {name: 3, gps: {latitude: 1, longitude: 3}}]
+  , ['support literal types', 'Literal', {name: 'first'}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)
@@ -128,6 +143,9 @@ describe('Correctly checks invalid types', ()=>{
       , recur: { name: 5 }
       }
     }]
+  , ['checks union object types - object', 'UnionUser', {name: 3, gps: {latitude: 1}}]
+  , ['checks union object types - string', 'UnionUser', {name: 3, gps: 3}]
+  , ['check literal types', 'Literal', {name: 'firsta'}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{
