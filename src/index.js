@@ -1,27 +1,3 @@
-//const schema = {
-//    User: {
-//        name: {type: 'string'},
-//        isActive: {type: 'boolean', isNullable: true, isOptional: true},
-//        gps: {type: 'Gps'},
-//        thing: {type: 'symbol'},
-//        otherNames: {type: 'string', isArray: true},
-//    },
-//    Gps: {
-//        latitude: {type: 'number'},
-//        longitude: {type: 'number'},
-//    },
-//}
-//const response = {
-//  name: 'Yolo',
-//  isActive: null,
-//  gps: {latitude: 5, longitude: 4},
-//  thing: 'whatever symbols',
-//  otherNames: ['first', 'last']
-//}
-//
-//const matcher = new Schema(schema)
-//matcher.check('User', response)
-
 module.exports = class Schema {
   constructor(schema){
     if (!schema){

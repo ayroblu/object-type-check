@@ -35,6 +35,9 @@ const schema = {
     name: {type: 'string'},
     locationsArray: {type: 'ArrayGpsUser', array: true},
   },
+  Func: {
+    name: {type: 'function'},
+  },
 }
 describe('Correctly checks types', ()=>{
   [
@@ -75,6 +78,7 @@ describe('Correctly checks types', ()=>{
         }]
       }]
     }]
+  , ['check function types', 'Func', {name: ()=>{}}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)
@@ -101,6 +105,7 @@ describe('Correctly checks invalid types', ()=>{
         latitude: 23
       }]
     }]
+  , ['check function types', 'Func', {name: 'name'}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{
