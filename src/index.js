@@ -15,15 +15,35 @@ class Schema {
     }
     this.schema = schema
   }
+  safeCheck(type, o){
+    try {
+      return this.check(type, o)
+    } catch (err) {
+      return false
+    }
+  }
   check(type, o){
     if (typeof o !== 'object') {
       throw new Error('Object not provided')
     }
-    return this._checkType(this.schema, type, o)
+    return type.split('|').some(t=>{
+      try {
+        return this._checkType(this.schema, t, o)
+      } catch (err) {
+        if (type.split('|').length === 1){
+          throw err
+        }
+        return false
+      }
+    })
   }
   _checkType(schema, typeName, resp){
     const schemaType = schema[typeName]
     if (!schemaType) throw new Error('Type not found')
+
+    const hasExtra = this._checkHasExtra(schemaType, resp)
+    if (hasExtra) throw new Error(`Has extra params`)
+
     Object.keys(schemaType).forEach(k=>{
       const stt = typeof schemaType[k] === 'string'
         ? this._stringTypeParser(schemaType[k])
@@ -54,6 +74,9 @@ class Schema {
       if (!isValid) throw new Error('Did not match any type')
     })
     return true
+  }
+  _checkHasExtra(stt, resp){
+    return !Object.keys(resp).every(k=>stt[k])
   }
   _stringTypeParser(stringType){
     const arr = /^((Array|Promise)<)+([^\s<>]*?)(>)+$/g.exec(stringType)
@@ -106,6 +129,7 @@ class Schema {
     , isNullable && o === null
     , isOptional && o === undefined
     , type==='literal' && Array.isArray(values) && values.some(v=>o===v)
+    , type==='any'
     ].some(a=>a) || (
       oType && this._checkType(schema, type, o)
     )

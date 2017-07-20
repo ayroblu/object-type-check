@@ -56,6 +56,15 @@ const schema = {
   Literal: {
     name: {type: 'literal', values: ['first']},
   },
+  StringType: {
+    name: 'string',
+    age: 'string?',
+    country: '?string',
+    height: '?number?',
+  },
+  Any: {
+    name: 'any'
+  },
 }
 describe('Correctly checks types', ()=>{
   [
@@ -109,11 +118,24 @@ describe('Correctly checks types', ()=>{
   , ['support union object types - string', 'UnionUser', {name: 3, gps: 'three'}]
   , ['support union object types - object', 'UnionUser', {name: 3, gps: {latitude: 1, longitude: 3}}]
   , ['support literal types', 'Literal', {name: 'first'}]
+  , ['support string types - all', 'StringType', {name: 'hi', age: 'hi', country: 'hi', height: 2}]
+  , ['support string types - no age', 'StringType', {name: 'hi', country: 'hi', height: 2}]
+  , ['support string types - null country', 'StringType', {name: 'hi', country: null, height: 2}]
+  , ['support string types - no height', 'StringType', {name: 'hi', country: null}]
+  , ['support string types - null height', 'StringType', {name: 'hi', country: null, height: null}]
+  , ['support any type', 'Any', {name: 'hi'}]
+  , ['support union in TypeDef - basic', 'Basic|Gps', {name: 'hi'}]
+  , ['support union in TypeDef - gps', 'Basic|Gps', {latitude: 3, longitude: 4}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)
       const result = matcher.check(type, o)
       assert(result)
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(schema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(isValid)
     })
   })
 })
@@ -146,12 +168,26 @@ describe('Correctly checks invalid types', ()=>{
   , ['checks union object types - object', 'UnionUser', {name: 3, gps: {latitude: 1}}]
   , ['checks union object types - string', 'UnionUser', {name: 3, gps: 3}]
   , ['check literal types', 'Literal', {name: 'firsta'}]
+  , ['check no extra params', 'Basic', {name: 'first', age: 3}]
+  , ['check no extra params - nested', 'Recur', {
+      name: 's'
+    , recur: {
+        name: 'breathe'
+      , recur: { name: 'hi', age: 9 }
+      }
+    }]
+  , ['support string types - needs country', 'StringType', {name: 'hi'}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{
         const matcher = new Schema(schema)
         matcher.check(type, o)
       })
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(schema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(!isValid)
     })
   })
 })
