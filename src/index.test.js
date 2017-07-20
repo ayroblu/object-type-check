@@ -126,6 +126,7 @@ describe('Correctly checks types', ()=>{
   , ['support any type', 'Any', {name: 'hi'}]
   , ['support union in TypeDef - basic', 'Basic|Gps', {name: 'hi'}]
   , ['support union in TypeDef - gps', 'Basic|Gps', {latitude: 3, longitude: 4}]
+  , ['support array in TypeDef - gps', 'Array<Basic>', [{name: 'hi'}, {name: 'yo'}]]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)

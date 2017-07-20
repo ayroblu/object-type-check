@@ -20,3 +20,8 @@ Also have option to check for extra params
 
 
 Given what this does, schema verification is probably a big deal
+
+// Next: Should seperate out in to steps, 
+// 1. validate schema
+// 2. parse to proper schema type
+// 3. Checker just checks against schema

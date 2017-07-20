@@ -1,3 +1,4 @@
+const {parseSchema, stringTypeParser} = require('./schemaParser')
 const primitiveTypes = [
   'string',
   'number',
@@ -13,7 +14,7 @@ class Schema {
     if (!schema){
       throw new Error('Schema not specified')
     }
-    this.schema = schema
+    this.schema = parseSchema(schema)
   }
   safeCheck(type, o){
     try {
@@ -26,18 +27,11 @@ class Schema {
     if (typeof o !== 'object') {
       throw new Error('Object not provided')
     }
-    return type.split('|').some(t=>{
-      try {
-        return this._checkType(this.schema, t, o)
-      } catch (err) {
-        if (type.split('|').length === 1){
-          throw err
-        }
-        return false
-      }
-    })
+    const v = stringTypeParser(type)
+    this._typeCheck(this.schema, v, o)
+    return true
   }
-  _checkType(schema, typeName, resp){
+  _runTypeCheck(schema, typeName, resp){
     const schemaType = schema[typeName]
     if (!schemaType) throw new Error('Type not found')
 
@@ -45,60 +39,35 @@ class Schema {
     if (hasExtra) throw new Error(`Has extra params`)
 
     Object.keys(schemaType).forEach(k=>{
-      const stt = typeof schemaType[k] === 'string'
-        ? this._stringTypeParser(schemaType[k])
-        : schemaType[k]
-      const stta = !Array.isArray(stt)
-        ? this._getTypeOptions(stt)
-        : stt
-      const isValid = stta.some(s=>{
-        const {array} = s
-
-        try {
-          if (array) {
-            const arrVal = typeof array === 'number' ? array : 1
-            this._recurFunc(resp[k], k, arrVal, r=>{
-              this._checkTypeValidity(schema, s, k, r)
-            })
-          } else {
-            this._checkTypeValidity(schema, s, k, resp[k])
-          }
-        } catch (err){
-          if (stta.length === 1)
-            throw err
-
-          return false
-        }
-        return true
-      })
-      if (!isValid) throw new Error('Did not match any type')
+      this._typeCheck(schema, schemaType[k], resp[k], k)
     })
     return true
   }
+  _typeCheck(schema, fullTypeDef, o, k='input'){
+    const isValid = fullTypeDef.some(s=>{
+      const {array} = s
+
+      try {
+        if (array) {
+          const arrVal = typeof array === 'number' ? array : 1
+          this._recurFunc(o, k, arrVal, r=>{
+            this._checkTypeValidity(schema, s, k, r)
+          })
+        } else {
+          this._checkTypeValidity(schema, s, k, o)
+        }
+      } catch (err){
+        if (fullTypeDef.length === 1)
+          throw err
+
+        return false
+      }
+      return true
+    })
+    if (!isValid) throw new Error('Did not match any type')
+  }
   _checkHasExtra(stt, resp){
     return !Object.keys(resp).every(k=>stt[k])
-  }
-  _stringTypeParser(stringType){
-    const arr = /^((Array|Promise)<)+([^\s<>]*?)(>)+$/g.exec(stringType)
-    const numLeft = stringType.replace(/[^<]/g, '').length
-    const balanced = numLeft === stringType.replace(/[^>]/g, '').length
-    return {
-      type: stringType.replace(/\?/g, ''),
-      isOptional: /\?$/.test(stringType),
-      isNullable: /^\?/.test(stringType),
-      array: !!arr && balanced && numLeft
-    }
-  }
-  _isObjectType(type){
-    return !primitiveTypes.includes(type)
-    // Or capitalise?
-    //return /^[A-Z]/.test(type)
-  }
-  _getTypeOptions(schemaTypeType) {
-    const {type} = schemaTypeType
-    return type.split('|').map(t=>(
-      Object.assign({}, schemaTypeType, {type: t})
-    ))
   }
   _checkTypeValidity(schema, schemaTypeType, k, o){
     const {type} = schemaTypeType
@@ -122,7 +91,8 @@ class Schema {
   _isValidType(schema, typeDef, o){
     const {isNullable, isOptional, values, type} = typeDef
 
-    const oType = this._isObjectType(type)
+    // is Object type check (perhaps capitalization is better?)
+    const oType = !primitiveTypes.includes(type)
 
     return [
       typeof o === type
@@ -131,7 +101,7 @@ class Schema {
     , type==='literal' && Array.isArray(values) && values.some(v=>o===v)
     , type==='any'
     ].some(a=>a) || (
-      oType && this._checkType(schema, type, o)
+      oType && this._runTypeCheck(schema, type, o)
     )
   }
 }
