@@ -22,7 +22,7 @@ const response = {
 const matcher = new Schema(schema)
 matcher.check('User', response)
 
-class Schema {
+module.exports = class Schema {
   constructor(schema){
     if (!schema){
       throw new Error('Schema not specified')
@@ -33,6 +33,7 @@ class Schema {
     if (typeof o !== 'object') {
       throw new Error('Object not provided')
     }
+    checkType(this.schema, type, o)
   }
 }
 
