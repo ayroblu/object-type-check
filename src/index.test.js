@@ -192,3 +192,9 @@ describe('Correctly checks invalid types', ()=>{
     })
   })
 })
+describe('Extra special checks', ()=>{
+  it('allows extras when specified', ()=>{
+    const matcher = new Schema(schema, {noExtras: false})
+    matcher.check('Basic', {name: 'hi', water: true})
+  })
+})

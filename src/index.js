@@ -10,11 +10,12 @@ const primitiveTypes = [
 ]
 
 class Schema {
-  constructor(schema){
+  constructor(schema, {noExtras}={noExtras:true}){
     if (!schema){
       throw new Error('Schema not specified')
     }
     this.schema = parseSchema(schema)
+    this.noExtras = noExtras
   }
   safeCheck(type, o){
     try {
@@ -35,8 +36,10 @@ class Schema {
     const schemaType = schema[typeName]
     if (!schemaType) throw new Error('Type not found')
 
-    const hasExtra = this._checkHasExtra(schemaType, resp)
-    if (hasExtra) throw new Error(`Has extra params`)
+    if (this.noExtras){
+      const hasExtra = this._checkHasExtra(schemaType, resp)
+      if (hasExtra) throw new Error(`Has extra params`)
+    }
 
     Object.keys(schemaType).forEach(k=>{
       this._typeCheck(schema, schemaType[k], resp[k], k)
