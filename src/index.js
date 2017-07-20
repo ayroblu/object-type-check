@@ -46,6 +46,7 @@ function checkType(schema, typeName, resp){
     const oType = /^[A-Z]/.test(type)
     if (oType){
       checkType(schema, type, resp[k])
+      return
     }
     if (isArray) {
       if (!Array.isArray(resp[k])) {
