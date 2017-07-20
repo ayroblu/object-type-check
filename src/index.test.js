@@ -25,7 +25,7 @@ const schema = {
   },
   ArrayGpsUser:{
     name: {type: 'string'},
-    thoughts: {type: 'Gps', isArray: true},
+    locations: {type: 'Gps', isArray: true},
   },
 }
 describe('Correctly checks types', ()=>{
@@ -37,6 +37,13 @@ describe('Correctly checks types', ()=>{
   , ['checks user object active', 'User', {name: 'hi', age: 3, country: 'NZ', isActive: true}]
   , ['checks gps user', 'GpsUser', {name: 'hi', gps: {latitude: 3, longitude: 3}}]
   , ['checks array user', 'ArrayUser', {name: 'hi', thoughts: ['Bro', 'cute']}]
+  , ['checks array gps user', 'ArrayGpsUser', {
+      name: 'hi', locations: [{
+        latitude: 23, longitude: 13,
+      }, {
+        latitude: 23, longitude: 135,
+      }]
+    }]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)

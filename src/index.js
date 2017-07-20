@@ -44,15 +44,15 @@ function checkType(schema, typeName, resp){
     const {isArray, type} = schemaType[k]
 
     const oType = /^[A-Z]/.test(type)
-    if (oType){
-      checkType(schema, type, resp[k])
-      return
-    }
     if (isArray) {
       if (!Array.isArray(resp[k])) {
         throw new Error(`${k} should be an array`)
       }
       resp[k].forEach(r=>{
+        if (oType){
+          checkType(schema, type, r)
+          return
+        }
         const validType = isValidType(schemaType[k], r)
 
         if (!validType) {
@@ -60,6 +60,10 @@ function checkType(schema, typeName, resp){
         }
       })
     } else {
+      if (oType){
+        checkType(schema, type, resp[k])
+        return
+      }
       const validType = isValidType(schemaType[k], resp[k])
       if (!validType) {
         throw new Error(`Invalid type on ${k}, expected ${type}`)
