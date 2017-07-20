@@ -38,6 +38,13 @@ const schema = {
   Func: {
     name: {type: 'function'},
   },
+  Thing: {
+    name: {type: 'object'},
+  },
+  Recur: {
+    name: {type: 'string'},
+    recur: {type: 'Recur', isOptional: true},
+  },
 }
 describe('Correctly checks types', ()=>{
   [
@@ -79,6 +86,14 @@ describe('Correctly checks types', ()=>{
       }]
     }]
   , ['check function types', 'Func', {name: ()=>{}}]
+  , ['support generic objects', 'Thing', {name: {fiddle: true}}]
+  , ['support recursive objects', 'Recur', {
+      name: 's'
+    , recur: {
+        name: 'breathe'
+      , recur: { name: 'yolo' }
+      }
+    }]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       const matcher = new Schema(schema)
@@ -106,6 +121,13 @@ describe('Correctly checks invalid types', ()=>{
       }]
     }]
   , ['check function types', 'Func', {name: 'name'}]
+  , ['checks recursive objects types', 'Recur', {
+      name: 's'
+    , recur: {
+        name: 'breathe'
+      , recur: { name: 5 }
+      }
+    }]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{

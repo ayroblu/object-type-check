@@ -1,3 +1,12 @@
+const primitiveTypes = [
+  'string',
+  'number',
+  'boolean',
+  'symbol',
+  'object',
+  'function',
+]
+
 class Schema {
   constructor(schema){
     if (!schema){
@@ -15,28 +24,25 @@ class Schema {
     const schemaType = schema[typeName]
     if (!schemaType) throw new Error('Type not found')
     Object.keys(schemaType).forEach(k=>{
-      const {array, type} = schemaType[k]
+      const stt = typeof schemaType[k] === 'string'
+        ? this._stringTypeParser(schemaType[k])
+        : schemaType[k]
+      const {array, type} = stt
 
-      const oType = /^[A-Z]/.test(type)
       if (array) {
         const arrVal = typeof array === 'number' ? array : 1
         this._recurFunc(resp[k], k, arrVal, r=>{
-          this._checkTypeValidity(schema, schemaType, k, r)
+          this._checkTypeValidity(schema, stt, k, r)
         })
       } else {
-        this._checkTypeValidity(schema, schemaType, k, resp[k])
+        this._checkTypeValidity(schema, stt, k, resp[k])
       }
     })
     return true
   }
-  _checkTypeValidity(schema, schemaType, k, o){
-    const {type} = schemaType[k]
-    const oType = /^[A-Z]/.test(type)
-    if (oType){
-      this._checkType(schema, type, o)
-      return
-    }
-    const validType = this._isValidType(schemaType[k], o)
+  _checkTypeValidity(schema, schemaTypeType, k, o){
+    const {type} = schemaTypeType
+    const validType = this._isValidType(schema, schemaTypeType, o)
     if (!validType) {
       throw new Error(`Invalid type on ${k}, expected ${type}`)
     }
@@ -53,14 +59,34 @@ class Schema {
       }
     })
   }
-  _isValidType(typeDef, o){
+  _isValidType(schema, typeDef, o){
     const {isNullable, isOptional, type} = typeDef
+
+    const oType = this._isObjectType(type)
 
     return [
       typeof o === type
     , isNullable && o === null
     , isOptional && o === undefined
-    ].some(a=>a)
+    ].some(a=>a) || (
+      oType && this._checkType(schema, type, o)
+    )
+  }
+  _stringTypeParser(stringType){
+    const arr = /^((Array|Promise)<)+([^\s<>]*?)(>)+$/g.exec(stringType)
+    const numLeft = stringType.replace(/[^<]/g, '').length
+    const balanced = numLeft === stringType.replace(/[^>]/g, '').length
+    return {
+      type: stringType.replace(/\?/g, ''),
+      isOptional: /\?$/.test(stringType),
+      isNullable: /^\?/.test(stringType),
+      array: !!arr && balanced && numLeft
+    }
+  }
+  _isObjectType(type){
+    return !primitiveTypes.includes(type)
+    // Or capitalise?
+    //return /^[A-Z]/.test(type)
   }
 }
 
