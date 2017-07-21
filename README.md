@@ -22,8 +22,9 @@ const schema = {
         id: 'number',
         name: 'string',
         age: 'string|number',
-        country: 'string?',
-        isActive: '?boolean',
+        country: 'string?', //Allow it to be undefined / missing
+        isActive: '?boolean', // Allow it to be null
+        friends: 'Array<string>'
     }
 }
 const matcher = new Schema(schema)
@@ -42,4 +43,61 @@ const isValid = matcher.check('User', {
     country: 123,
     isActive: null,
 })
+```
+
+Schema Definition
+-----------------
+It should probably be noted that I haven't covered all the possible ways to break this, but there's a bunch of tests and they're pretty good
+
+Conventionally definitions should probably start with a capital letter, but that isn't enforced
+
+### String definition
+As seen above, using strings to define the types
+
+```javascript
+const schema = {
+    User: {
+        id: 'number',
+        name: 'string',
+        age: 'string|number', // union / or operator
+        country: 'string?', //Allow it to be undefined / missing
+        isActive: '?boolean', // Allow it to be null
+        friends: 'Array<string>', // Arrays can't be unioned
+        answers: 'Array<Array<number>>',
+    }
+}
+```
+
+### Object definition
+This is probably the more traditional - using an object definition - something like swagger uses this I believe
+
+```javascript
+const schema = {
+    User: {
+        id: {type: 'number'},
+        name: {type: 'string'},
+        age: {type: 'string|number'},
+        country: {type: 'string', isOptional: true},
+        isActive: {type: 'boolean', isNullable: true},
+        friends: {type: 'string', array: true},
+        answers: {type: 'number', array: 2},
+    }
+}
+```
+
+### Array Object definition
+This is how I actually represent the data in the end, so everything is cast to this, and gives you the most control, but doesn't make much difference for the effort
+
+```javascript
+const schema = {
+    User: {
+        id: [{type: 'number'}],
+        name: [{type: 'string'}],
+        age: [{type: 'string'}, {type: 'number', array: true}], // the only way to specify an array union type
+        country: [{type: 'string', isOptional: true}],
+        isActive: [{type: 'boolean', isNullable: true}],
+        friends: [{type: 'string', array: true}],
+        answers: [{type: 'number', array: 2}],
+    }
+}
 ```
