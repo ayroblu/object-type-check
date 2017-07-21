@@ -1,6 +1,9 @@
 Object Type Check
 =================
 
+[![Build Status](https://travis-ci.org/ayroblu/object-type-check.svg?branch=master)](https://travis-ci.org/ayroblu/object-type-check)
+[![Coverage Status](https://coveralls.io/repos/github/ayroblu/object-type-check/badge.svg?branch=master)](https://coveralls.io/github/ayroblu/object-type-check?branch=master)
+
 Specifically this is for JSON to JS type checking, typically from URL calls.
 For better type checking, probably using json-schema is what you want
 
