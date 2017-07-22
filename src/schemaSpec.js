@@ -23,7 +23,7 @@ const schema = parseSchema({
 function checkSchema(o){
   //const matcher = new Schema(schema)
 
-  if (typeof o !== 'object') throw new Error('Schema not passed')
+  if (typeof o !== 'object' || o === null) throw new Error('Schema not passed')
   Object.keys(o).forEach(k=>{
     Object.keys(o[k]).forEach(n=>{
       o[k][n].forEach(v=>{
