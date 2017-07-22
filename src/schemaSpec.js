@@ -1,6 +1,7 @@
+const parseSchema = require('./schemaParser')
 const {check, safeCheck} = require('./typeChecker')
 
-const schema = {
+const schema = parseSchema({
   Type: {
     type: {type: 'literal', values: [
       'string',
@@ -24,7 +25,7 @@ const schema = {
     isNullable: 'boolean?',
     array: 'number|boolean?',
   },
-}
+}, true)
 // once you've parsed the schema, then you can check it
 function checkSchema(o){
   //const matcher = new Schema(schema)

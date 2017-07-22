@@ -1,5 +1,4 @@
 const stringTypeParser = require('./stringTypeParser')
-const checkSchema = require('./schemaSpec')
 
 function parseSchema(schema){
   const newSchema = Object.assign({}, schema)
@@ -23,8 +22,6 @@ function parseSchema(schema){
       }
     })
   })
-
-  checkSchema(newSchema)
   return newSchema
 }
 

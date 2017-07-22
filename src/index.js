@@ -11,10 +11,10 @@ class Schema {
     this.noExtras = noExtras
   }
   safeCheck(type, o, options){
-    return safeCheck(schema, type, o, options)
+    return safeCheck(this.schema, type, o, options)
   }
   check(type, o, options={noExtras: this.noExtras}){
-    check(schema, type, o, options)
+    return check(this.schema, type, o, options)
   }
 }
 
