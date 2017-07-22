@@ -1,16 +1,9 @@
-const {parseSchema} = require('./schemaParser')
-const Schema = require('./')
+const parseSchema = require('./schemaParser')
+const {check, safeCheck, primitiveTypes} = require('./typeChecker')
 
-const schema = {
+const schema = parseSchema({
   Type: {
-    type: {type: 'literal', values: [
-      'string',
-      'number',
-      'boolean',
-      'symbol',
-      'object',
-      'function',
-    ]},
+    type: {type: 'literal', values: primitiveTypes},
     isOptional: 'boolean?',
     isNullable: 'boolean?',
     array: 'number|boolean?',
@@ -25,19 +18,18 @@ const schema = {
     isNullable: 'boolean?',
     array: 'number|boolean?',
   },
-}
+}, true)
+// once you've parsed the schema, then you can check it
 function checkSchema(o){
-  const matcher = new Schema(schema)
+  //const matcher = new Schema(schema)
 
-  o = parseSchema(o)
   if (typeof o !== 'object') throw new Error('Schema not passed')
   Object.keys(o).forEach(k=>{
-    if (typeof o[k] !== 'object') throw new Error('Type object not valid: ' + o[k])
     Object.keys(o[k]).forEach(n=>{
       o[k][n].forEach(v=>{
-        const isPrimitive = matcher.safeCheck('Type|LiteralType', v)
+        const isPrimitive = safeCheck(schema, 'Type|LiteralType', v)
         if (!isPrimitive){
-          matcher.check('ObjectType', v)
+          check(schema, 'ObjectType', v)
           if (!o[v.type]) {
             throw new Error('ObjectType not found')
           }

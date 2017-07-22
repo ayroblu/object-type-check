@@ -178,6 +178,8 @@ describe('Correctly checks invalid types', ()=>{
       }
     }]
   , ['support string types - needs country', 'StringType', {name: 'hi'}]
+  , ['throws on no type provided', null, {name: 'hi'}]
+  , ['throws on invalid type provided', 'Yolo', {name: 'hi'}]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{
@@ -196,5 +198,10 @@ describe('Extra special checks', ()=>{
   it('allows extras when specified', ()=>{
     const matcher = new Schema(schema, {noExtras: false})
     matcher.check('Basic', {name: 'hi', water: true})
+  })
+  it('throws on no schema', ()=>{
+    assert.throws(()=>{
+      const matcher = new Schema(null)
+    })
   })
 })
