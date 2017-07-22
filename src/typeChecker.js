@@ -8,6 +8,7 @@ const primitiveTypes = [
   'object',
   'function',
   'literal', // not a primitive but special cased
+  'any', // not a primitive but special cased
 ]
 
 function safeCheck(schema, type, o, options){
@@ -101,4 +102,4 @@ function isValidType(schema, typeDef, o, options){
   )
 }
 
-module.exports = {check, safeCheck}
+module.exports = {check, safeCheck, primitiveTypes}

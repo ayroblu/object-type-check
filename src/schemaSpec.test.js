@@ -1,6 +1,7 @@
 var assert = require('assert')
 //const Schema = require('./')
 const parseSchema = require('./schemaParser')
+const checkSchema = require('./schemaSpec')
 
 describe('Successfully creates schema', ()=>{
   [
@@ -34,7 +35,7 @@ describe('Successfully creates schema', ()=>{
   ].forEach(([name, schema])=>{
     it(name, ()=>{
       //const matcher = new Schema(schema)
-      parseSchema(schema)
+      checkSchema(parseSchema(schema))
     })
   })
 })
@@ -61,12 +62,11 @@ describe('Gets invalid schema', ()=>{
     // other
     ['non string type', {Basic: {name: 5}}],
     ['non string type in typename', {Basic: {name: {type: 3}}}],
-    ['no schema passed', null],
   ].forEach(([name, schema])=>{
     it(name, ()=>{
       assert.throws(()=>{
         //const matcher = new Schema(schema)
-        parseSchema(schema)
+        checkSchema(parseSchema(schema))
       })
     })
   })

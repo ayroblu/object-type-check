@@ -1,16 +1,9 @@
 const parseSchema = require('./schemaParser')
-const {check, safeCheck} = require('./typeChecker')
+const {check, safeCheck, primitiveTypes} = require('./typeChecker')
 
 const schema = parseSchema({
   Type: {
-    type: {type: 'literal', values: [
-      'string',
-      'number',
-      'boolean',
-      'symbol',
-      'object',
-      'function',
-    ]},
+    type: {type: 'literal', values: primitiveTypes},
     isOptional: 'boolean?',
     isNullable: 'boolean?',
     array: 'number|boolean?',

@@ -1,5 +1,6 @@
 const {check, safeCheck} = require('./typeChecker')
 const parseSchema = require('./schemaParser')
+const checkSchema = require('./schemaSpec')
 const stringTypeParser = require('./stringTypeParser')
 
 class Schema {
@@ -8,6 +9,7 @@ class Schema {
       throw new Error('Schema not specified')
     }
     this.schema = parseSchema(schema)
+    checkSchema(this.schema)
     this.noExtras = noExtras
   }
   safeCheck(type, o, options){
