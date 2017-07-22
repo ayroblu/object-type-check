@@ -40,7 +40,7 @@ function runTypeCheck(schema, typeName, resp, {noExtras}){
   })
   return true
 }
-function typeCheck(schema, fullTypeDef, o, k='input', options){
+function typeCheck(schema, fullTypeDef, o, k, options){
   const isValid = fullTypeDef.some(s=>{
     const {array} = s
 
