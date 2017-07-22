@@ -71,3 +71,10 @@ describe('Gets invalid schema', ()=>{
     })
   })
 })
+describe('Extra checks', ()=>{
+  it('fail check schema', ()=>{
+    assert.throws(()=>{
+      checkSchema(null)
+    })
+  })
+})

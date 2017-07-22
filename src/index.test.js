@@ -180,6 +180,7 @@ describe('Correctly checks invalid types', ()=>{
   , ['support string types - needs country', 'StringType', {name: 'hi'}]
   , ['throws on no type provided', null, {name: 'hi'}]
   , ['throws on invalid type provided', 'Yolo', {name: 'hi'}]
+  , ['throws on no object passed', 'Basic', null]
   ].forEach(([name, type, o])=>{
     it(name, ()=>{
       assert.throws(()=>{

@@ -19,7 +19,7 @@ function safeCheck(schema, type, o, options){
   }
 }
 function check(schema, type, o, options={noExtras: true}){
-  if (typeof o !== 'object') {
+  if (typeof o !== 'object' || o === null) {
     throw new Error('Object not provided')
   }
   const v = stringTypeParser(type)
