@@ -202,7 +202,7 @@ describe('Extra special checks', ()=>{
   })
   it('throws on no schema', ()=>{
     assert.throws(()=>{
-      const matcher = new Schema(null)
+      new Schema(null)
     })
   })
 })
