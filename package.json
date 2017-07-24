@@ -1,10 +1,10 @@
 {
   "name": "object-type-check",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Runtime basic type checker like flow",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "clean": "rimraf lib",
     "lint": "eslint src",
     "coverage": "nyc --reporter=html --reporter=text mocha */*.test.js",
