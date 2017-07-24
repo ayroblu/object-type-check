@@ -1,35 +1,39 @@
 {
-	"name": "object-type-check",
-	"version": "0.0.2",
-	"description": "Runtime basic type checker like flow",
-	"main": "src/index.js",
-	"scripts": {
-		"clean": "rimraf lib",
-		"lint": "eslint src",
-		"coverage": "nyc --reporter=html --reporter=text mocha */*.test.js",
-		"coveralls": "nyc report --reporter=text-lcov | coveralls",
-		"test": "mocha */*.test.js",
-		"prepare": "npm run lint && npm run test && npm run clean && npm run build"
-	},
-	"dependencies": {},
-	"devDependencies": {
-		"babel-cli": "^6.24.1",
-		"babel-core": "^6.25.0",
-		"babel-eslint": "^7.2.3",
-		"babel-preset-env": "^1.6.0",
-		"coveralls": "^2.13.1",
-		"eslint": "^4.1.1",
-		"eslint-plugin-import": "^2.7.0",
-		"mocha": "^3.4.2",
-		"nyc": "^11.0.3",
-		"rimraf": "^2.6.1"
-	},
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/ayroblu/object-type-check/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/ayroblu/object-type-check.git"
-	}
+  "name": "object-type-check",
+  "version": "0.0.3",
+  "description": "Runtime basic type checker like flow",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "babel src --out-dir lib",
+    "clean": "rimraf lib",
+    "lint": "eslint src",
+    "coverage": "nyc --reporter=html --reporter=text mocha */*.test.js",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "test": "mocha */*.test.js",
+    "prepare": "npm run lint && npm run test && npm run clean && npm run build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-env": "^1.6.0",
+    "coveralls": "^2.13.1",
+    "eslint": "^4.1.1",
+    "eslint-plugin-import": "^2.7.0",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.3",
+    "rimraf": "^2.6.1"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ayroblu/object-type-check/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ayroblu/object-type-check.git"
+  },
+  "babel": {
+    "presets": ["env"]
+  }
 }
