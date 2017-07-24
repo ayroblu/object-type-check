@@ -3,6 +3,9 @@
   "version": "0.0.4",
   "description": "Runtime basic type checker like flow",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "clean": "rimraf lib",
