@@ -74,16 +74,32 @@ const schema = {
   },
   Another: {
     Water: 'Some<number>',
-    Air: 'Some<User>',
+    Air: 'Some<Basic>',
   },
 }
-it.only('does nothing', ()=>{
-  const matcher = new Schema(schema)
-  const result = matcher.check('Basic', {name: 'hi'})
-  assert(result)
-  matcher.check('Some<number>', {name: 5})
-  assert.throws(()=>{
-    matcher.check('Some<number>', {name: 'hi'})
+describe.only('adding generics', ()=>{
+  it('does nothing', ()=>{
+    const matcher = new Schema(schema)
+    const result = matcher.check('Basic', {name: 'hi'})
+    assert(result)
+    matcher.check('Some<number>', {name: 5})
+    assert.throws(()=>{
+      matcher.check('Some<number>', {name: 'hi'})
+    })
+  })
+  it('sub generics', ()=>{
+    const matcher = new Schema(schema)
+    matcher.check('Something<string>', {name: 'hi', firstname: {name: 'asdf'}})
+    assert.throws(()=>{
+      matcher.check('Something<string>', {name: 'hi', firstname: {name: 123}})
+    })
+  })
+  it('another generics', ()=>{
+    const matcher = new Schema(schema)
+    matcher.check('Another', {Water: {name: 1}, Air: {name: {name: 'asdf'}}})
+    assert.throws(()=>{
+      matcher.check('Another<string>', {name: 'hi', firstname: {name: 'asdf'}})
+    })
   })
 })
 describe('Correctly checks types', ()=>{

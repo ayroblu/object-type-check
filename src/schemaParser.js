@@ -49,5 +49,6 @@ function parseParams(schema, key){
 // if I rename them, then I might overlap with an existing type
 // Also, this syntax supports overloading - don't support this
 // Just use a sub property
+// Okay, now when I do a check, maybe I need to do a property replacement
 
 module.exports = parseSchema

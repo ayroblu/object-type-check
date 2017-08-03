@@ -27,12 +27,27 @@ function check(schema, type, o, options={noExtras: true}){
   typeCheck(schema, v, o, 'input', options)
   return true
 }
+function genericType(schemaType, type, generics){
+  const genericMap = schemaType.__generics.params.reduce((a,n,i)=>{
+    a[n] = generics.params[i]
+    return a
+  }, {})
+  const genericsType = genericChecker(type)
+  const gType = genericsType ? `${genericsType.name}<${genericsType.params.map(p=>genericMap[p] || p).join(',')}>` : null
+  return genericMap[type] || gType || type
+}
 function runTypeCheck(schema, typeName, resp, {noExtras}){
   const generics = genericChecker(typeName)
   const type = generics ? generics.name : typeName
-  const schemaType = schema[type]
-  console.log('type', typeName, type, generics, resp)
-  if (!schemaType) throw new Error(`Type ${type} not found`)
+  if (!schema[type]) throw new Error(`Type ${type} not found`)
+
+  const schemaType = Object.assign({}, schema[type])
+  if (generics) {
+    Object.keys(schemaType).forEach(k=>{
+      if (k.startsWith('__')) return
+      schemaType[k] = schemaType[k].map(s=>Object.assign({}, s, {type: genericType(schemaType, s.type, generics)}))
+    })
+  }
 
   if (noExtras){
     const hasExtra = checkHasExtra(schemaType, resp)
@@ -40,6 +55,7 @@ function runTypeCheck(schema, typeName, resp, {noExtras}){
   }
 
   Object.keys(schemaType).forEach(k=>{
+    if (k.startsWith('__')) return
     typeCheck(schema, schemaType[k], resp[k], k, {noExtras})
   })
   return true

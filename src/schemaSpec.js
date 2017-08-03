@@ -30,9 +30,7 @@ function checkSchema(o){
       throw new Error(`Object sub: ${k} is not an object`)
     }
     Object.keys(o[k]).forEach(n=>{
-      if ('__generics' === n) {
-        return
-      }
+      if (n.startsWith('__')) return
       o[k][n].forEach(v=>{
         const isPrimitive = safeCheck(schema, 'Type|LiteralType', v)
         if (!isPrimitive){
