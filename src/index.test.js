@@ -65,7 +65,27 @@ const schema = {
   Any: {
     name: 'any'
   },
+  "Some<T>": { // thing does not need to exist, it is a placeholder
+    name: 'T', //So if I pass a number, it should be a number, if I pass an object, it should match that object - they will be matched...
+  },
+  "Something<R>": {
+    name: 'R'
+  , firstname: 'Some<R>'
+  },
+  Another: {
+    Water: 'Some<number>',
+    Air: 'Some<User>',
+  },
 }
+it.only('does nothing', ()=>{
+  const matcher = new Schema(schema)
+  const result = matcher.check('Basic', {name: 'hi'})
+  assert(result)
+  matcher.check('Some<number>', {name: 5})
+  assert.throws(()=>{
+    matcher.check('Some<number>', {name: 'hi'})
+  })
+})
 describe('Correctly checks types', ()=>{
   [
     ['checks basic object', 'Basic', {name: 'hi'}]
@@ -203,6 +223,29 @@ describe('Extra special checks', ()=>{
   it('throws on no schema', ()=>{
     assert.throws(()=>{
       new Schema(null)
+    })
+  })
+  it('throws on function spec', ()=>{
+    assert.throws(()=>{
+      const partialSchema = {
+        func(input){
+          return input > 1
+        },
+        Basic: {
+          name: {type: 'string'},
+        },
+      }
+      const matcher = new Schema(partialSchema)
+      matcher.check('Basic', {name: 'hi'})
+    })
+  })
+  it('throws non object schema', ()=>{
+    assert.throws(()=>{
+      const partialSchema = {
+        Basic: null,
+      }
+      const matcher = new Schema(partialSchema)
+      matcher.check('Basic', {name: 'hi'})
     })
   })
 })

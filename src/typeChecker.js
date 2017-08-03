@@ -1,4 +1,5 @@
 const stringTypeParser = require('./stringTypeParser')
+const genericChecker = require('./genericChecker')
 
 const primitiveTypes = [
   'string',
@@ -27,8 +28,11 @@ function check(schema, type, o, options={noExtras: true}){
   return true
 }
 function runTypeCheck(schema, typeName, resp, {noExtras}){
-  const schemaType = schema[typeName]
-  if (!schemaType) throw new Error('Type not found')
+  const generics = genericChecker(typeName)
+  const type = generics ? generics.name : typeName
+  const schemaType = schema[type]
+  console.log('type', typeName, type, generics, resp)
+  if (!schemaType) throw new Error(`Type ${type} not found`)
 
   if (noExtras){
     const hasExtra = checkHasExtra(schemaType, resp)

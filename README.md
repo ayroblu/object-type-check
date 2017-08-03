@@ -109,6 +109,7 @@ TODO
 ----
 * Generics
     * being about to specify something like `Parent<Child>`, where the parent would be the same, but the child would be different - for example in an api call that returns a results object (json-api) with counts etc
+    * Rename generics to `Parent<T1, T2>`, then you can search them
 * Functions
     * Being about to specify your own custom checker like `Even()`, where `"Even": o=>typeof o === 'number' && o % 2 === 0`
     * Should I be able to specify a type with a custom function?
