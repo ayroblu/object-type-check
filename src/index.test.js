@@ -205,4 +205,107 @@ describe('Extra special checks', ()=>{
       new Schema(null)
     })
   })
+  it('throws on function spec', ()=>{
+    assert.throws(()=>{
+      const partialSchema = {
+        func(input){
+          return input > 1
+        },
+        Basic: {
+          name: {type: 'string'},
+        },
+      }
+      const matcher = new Schema(partialSchema)
+      matcher.check('Basic', {name: 'hi'})
+    })
+  })
+  it('throws non object schema', ()=>{
+    assert.throws(()=>{
+      const partialSchema = {
+        Basic: null,
+      }
+      const matcher = new Schema(partialSchema)
+      matcher.check('Basic', {name: 'hi'})
+    })
+  })
+  it('throws non object schema', ()=>{
+    assert.throws(()=>{
+      const partialSchema = {
+        Basic: 3,
+      }
+      new Schema(partialSchema)
+    })
+  })
+})
+
+const gSchema = {
+  "Some<T>": {
+    name: 'T',
+  },
+  Basic: {
+    name: 'string',
+  },
+  "Something<R>": {
+    name: 'R'
+  , firstname: 'Some<R>'
+  },
+  Another: {
+    Water: 'Some<number>',
+    Air: 'Some<Basic>',
+  },
+}
+describe('adding generics', ()=>{
+  [
+    ['checks basic generic', 'Some<number>', {name: 6}]
+  , ['checks basic typed generic', 'Some<Basic>', {name: {name: 'hi'}}]
+  , ['checks nested generic', 'Something<string>', {name: 'hi', firstname: {name: 'asdf'}}]
+  , ['checks normal type', 'Another', {Water: {name: 1}, Air: {name: {name: 'asdf'}}}]
+  ].forEach(([name, type, o])=>{
+    it(name, ()=>{
+      const matcher = new Schema(gSchema)
+      const result = matcher.check(type, o)
+      assert(result)
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(gSchema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(isValid)
+    })
+  })
+  it('has a defined generic type', ()=>{
+    const tSchema = {
+      T: {name: 'string'}
+    , 'Basic<T>': {name: 'T'}
+    }
+    const matcher = new Schema(tSchema)
+    let isValid = matcher.check('Basic<number>', {name: 3})
+    assert(isValid)
+    assert.throws(()=>{
+      matcher.check('Basic<number>', {name: {name: 'hi'}})
+    })
+  })
+})
+describe('throws on bad generics', ()=>{
+  [
+    ['checks basic generic type check', 'Some<number>', {name: 'hi'}]
+  , ['checks basic typed generic -wrong structure', 'Some<Basic>', {name: 'hi'}]
+  , ['checks basic typed generic - wrong type', 'Some<Basic>', {name: {name: 1}}]
+  , ['not a valid generic', 'Some<T>', {name: {name: 'hi'}}]
+  , ['checks basic generic definition check - extras', 'Some<number, number>', {name: 3}]
+  , ['checks basic generic definition check - no extras', 'Some', {name: 3}]
+  , ['checks wrong type nested generic', 'Something<string>', {name: 'hi', firstname: {name: 123}}]
+  , ['checks wrong generic definition', 'Another<string>', {name: 'hi', firstname: {name: 'asdf'}}]
+  ].forEach(([name, type, o])=>{
+    it(name, ()=>{
+      assert.throws(()=>{
+        const matcher = new Schema(gSchema)
+        matcher.check(type, o)
+      })
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(gSchema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(!isValid)
+    })
+  })
 })

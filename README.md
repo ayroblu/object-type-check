@@ -109,9 +109,29 @@ TODO
 ----
 * Generics
     * being about to specify something like `Parent<Child>`, where the parent would be the same, but the child would be different - for example in an api call that returns a results object (json-api) with counts etc
+    * Rename generics to `Parent<T1, T2>`, then you can search them
 * Functions
     * Being about to specify your own custom checker like `Even()`, where `"Even": o=>typeof o === 'number' && o % 2 === 0`
     * Should I be able to specify a type with a custom function?
     * & is probably too hard a thing to incorporate, especially with | though I guess we can allow only one, otherwise brackets and more
         * Only useful with a custom function
         * `Even<number>()` maybe?
+
+Note
+----
+This generic type test is important, if you define a generic, then you can define with an existing type and it won't check it, and instead will do generic substitution first
+
+```javascript
+it('has a defined generic type', ()=>{
+  const tSchema = {
+    T: {name: 'string'}
+  , 'Basic<T>': {name: 'T'}
+  }
+  const matcher = new Schema(tSchema)
+  let isValid = matcher.check('Basic<number>', {name: 3})
+  assert(isValid)
+  assert.throws(()=>{
+    matcher.check('Basic<number>', {name: {name: 'hi'}})
+  })
+})
+```

@@ -1,4 +1,5 @@
 const stringTypeParser = require('./stringTypeParser')
+const genericChecker = require('./genericChecker')
 
 const primitiveTypes = [
   'string',
@@ -26,9 +27,31 @@ function check(schema, type, o, options={noExtras: true}){
   typeCheck(schema, v, o, 'input', options)
   return true
 }
+function genericType(schemaType, type, generics){
+  if (schemaType.__generics.params.length !== generics.params.length){
+    const name = `${generics.name}<${generics.params.join(',')}>`
+    throw new Error('Generics were of incorrect parameter length: ' + name)
+  }
+  const genericMap = schemaType.__generics.params.reduce((a,n,i)=>{
+    a[n] = generics.params[i]
+    return a
+  }, {})
+  const genericsType = genericChecker(type)
+  const gType = genericsType ? `${genericsType.name}<${genericsType.params.map(p=>genericMap[p]).join(',')}>` : null
+  return genericMap[type] || gType
+}
 function runTypeCheck(schema, typeName, resp, {noExtras}){
-  const schemaType = schema[typeName]
-  if (!schemaType) throw new Error('Type not found')
+  const generics = genericChecker(typeName)
+  const type = generics ? generics.name : typeName
+  if (!schema[type]) throw new Error(`Type ${type} not found`)
+
+  const schemaType = Object.assign({}, schema[type])
+  if (generics) {
+    Object.keys(schemaType).forEach(k=>{
+      if (k.startsWith('__')) return
+      schemaType[k] = schemaType[k].map(s=>Object.assign({}, s, {type: genericType(schemaType, s.type, generics)}))
+    })
+  }
 
   if (noExtras){
     const hasExtra = checkHasExtra(schemaType, resp)
@@ -36,6 +59,7 @@ function runTypeCheck(schema, typeName, resp, {noExtras}){
   }
 
   Object.keys(schemaType).forEach(k=>{
+    if (k.startsWith('__')) return
     typeCheck(schema, schemaType[k], resp[k], k, {noExtras})
   })
   return true
