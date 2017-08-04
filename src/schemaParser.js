@@ -5,6 +5,9 @@ function parseSchema(schema){
   const newSchema = {}
   Object.keys(schema).forEach(k=>{
     const {key, val} = parseParams(schema, k)
+    if (newSchema[key]) {
+      throw new Error('Double defined schema:' + key)
+    }
     newSchema[key] = val
   })
   return newSchema
@@ -17,6 +20,9 @@ function parseParams(schema, key){
   const generics = genericChecker(key)
     // You need to check that generic type is not specified cause confused
 
+  if (typeof schema[key] !== 'object' || !schema[key]) {
+    throw new Error(`Object sub: ${key} is not an object`)
+  }
   const oType = Object.assign({}, schema[key])
   Object.keys(oType).forEach(n=>{
     if (typeof oType[n] === 'string') {
@@ -36,11 +42,17 @@ function parseParams(schema, key){
     }
   })
   if (generics) {
+    const allSpeced = generics.params.every(p=>(
+      Object.keys(oType).find(n=>(
+        oType[n].find(t=>t.type===p)
+      ))
+    ))
+    if (!allSpeced) {
+      throw new Error('Generic types have not been defined in:' + key)
+    }
     oType.__generics = generics
   }
   return {key: generics ? generics.name : key, val: oType}
-  //throw new Error('Not implemented: generics')
-  //return {key, val: Object.assign({}, schema[key])}
 }
 
 // parse generics: 

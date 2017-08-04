@@ -116,3 +116,22 @@ TODO
     * & is probably too hard a thing to incorporate, especially with | though I guess we can allow only one, otherwise brackets and more
         * Only useful with a custom function
         * `Even<number>()` maybe?
+
+Note
+----
+This generic type test is important, if you define a generic, then you can define with an existing type and it won't check it, and instead will do generic substitution first
+
+```javascript
+it('has a defined generic type', ()=>{
+  const tSchema = {
+    T: {name: 'string'}
+  , 'Basic<T>': {name: 'T'}
+  }
+  const matcher = new Schema(tSchema)
+  let isValid = matcher.check('Basic<number>', {name: 3})
+  assert(isValid)
+  assert.throws(()=>{
+    matcher.check('Basic<number>', {name: {name: 'hi'}})
+  })
+})
+```

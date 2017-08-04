@@ -22,13 +22,8 @@ const schema = parseSchema({
 }, true)
 // once you've parsed the schema, then you can check it
 function checkSchema(o){
-  //const matcher = new Schema(schema)
-
   if (typeof o !== 'object' || o === null) throw new Error('Schema not passed')
   Object.keys(o).forEach(k=>{
-    if (typeof o[k] !== 'object' || !o[k]) {
-      throw new Error(`Object sub: ${k} is not an object`)
-    }
     Object.keys(o[k]).forEach(n=>{
       if (n.startsWith('__')) return
       o[k][n].forEach(v=>{
@@ -46,19 +41,21 @@ function checkSchema(o){
             throw new Error(`ObjectType ${type} not found`)
           }
           if (generics) {
-            if (!o[type].__generics){
-              throw new Error(`Expected a generic ${type}`)
-            }
             if (generics.params.length !== o[type].__generics.params.length) {
               throw new Error('Did not receive the correct number of generic arguments')
             }
             generics.params.forEach(p=>{
-              if (!o[p] && (o[k].__generics && !o[k].__generics.params.includes(p))){
+              const isGenericPrimitive = safeCheck(schema, 'Type|LiteralType', {type:p})
+              if (isGenericPrimitive) return
+              if (!o[p] && (!o[k].__generics || !o[k].__generics.params.includes(p))){
                 throw new Error('Generic param not found: ' + p)
               }
             })
+          } else {
+            if (o[type].__generics){
+              throw new Error(`Generic type needs parameters: ${type}`)
+            }
           }
-          // Add a check for params that they are valid types
         }
       })
     })

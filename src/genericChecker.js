@@ -3,7 +3,7 @@ function genericChecker(key){
   let generics = null
   if (genericKey) {
     const name = genericKey[1]
-    const params = genericKey[2].trim().split(/[\s,]/)
+    const params = genericKey[2].trim().split(/[\s,]+/)
     generics = {
       name, params
     }

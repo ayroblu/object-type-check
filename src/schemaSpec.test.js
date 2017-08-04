@@ -59,6 +59,31 @@ describe('Gets invalid schema', ()=>{
     ['basic string schema, array - bracket end', {Basic: {name: ' Array<string>>'}}],
     ['basic string schema, array - layered object', {Basic: {name: 'Array<Array<num>>'}}],
 
+    // generics types
+    ['basic generic schema - no generic type', {
+      'Basic<T>': {name: 'string'}
+    }],
+    ['generic same name', {
+      'Basic': {name: 'string'}
+    , 'Basic<T>': {name: 'T'}
+    }],
+    ['no generic use ', {
+      'Basic': {name: 'Some'}
+    , 'Some<T>': {name: 'T'}
+    }],
+    ['generic to non generic ', {
+      'Basic': {name: 'string'}
+    , 'Some<T>': {name: 'Basic<T>'}
+    }],
+    ['generics wrong num arguments', {
+      'Basic': {name: 'Some<string, number>'}
+    , 'Some<T>': {name: 'T'}
+    }],
+    ['generics wrong naming', {
+      'Basic': {name: 'Some<T>'}
+    , 'Some<T>': {name: 'T'}
+    }],
+
     // other
     ['non string type', {Basic: {name: 5}}],
     ['non string type in typename', {Basic: {name: {type: 3}}}],

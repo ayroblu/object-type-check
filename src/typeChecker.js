@@ -28,13 +28,17 @@ function check(schema, type, o, options={noExtras: true}){
   return true
 }
 function genericType(schemaType, type, generics){
+  if (schemaType.__generics.params.length !== generics.params.length){
+    const name = `${generics.name}<${generics.params.join(',')}>`
+    throw new Error('Generics were of incorrect parameter length: ' + name)
+  }
   const genericMap = schemaType.__generics.params.reduce((a,n,i)=>{
     a[n] = generics.params[i]
     return a
   }, {})
   const genericsType = genericChecker(type)
-  const gType = genericsType ? `${genericsType.name}<${genericsType.params.map(p=>genericMap[p] || p).join(',')}>` : null
-  return genericMap[type] || gType || type
+  const gType = genericsType ? `${genericsType.name}<${genericsType.params.map(p=>genericMap[p]).join(',')}>` : null
+  return genericMap[type] || gType
 }
 function runTypeCheck(schema, typeName, resp, {noExtras}){
   const generics = genericChecker(typeName)
