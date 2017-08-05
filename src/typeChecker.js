@@ -20,9 +20,9 @@ function safeCheck(schema, type, o, options){
   }
 }
 function check(schema, type, o, options={noExtras: true}){
-  if (typeof o !== 'object' || o === null) {
-    throw new Error('Object not provided')
-  }
+  //if (typeof o !== 'object' || o === null) {
+  //  throw new Error('Object not provided')
+  //}
   const v = stringTypeParser(type)
   typeCheck(schema, v, o, 'input', options)
   return true
@@ -45,23 +45,29 @@ function runTypeCheck(schema, typeName, resp, {noExtras}){
   const type = generics ? generics.name : typeName
   if (!schema[type]) throw new Error(`Type ${type} not found`)
 
-  const schemaType = Object.assign({}, schema[type])
-  if (generics) {
+  if (typeof schema[type] === 'function'){
+    if (!schema[type](resp)){
+      throw new Error(`Function ${typeName} returned falsy`)
+    }
+  } else {
+    const schemaType = Object.assign({}, schema[type])
+    if (generics) {
+      Object.keys(schemaType).forEach(k=>{
+        if (k.startsWith('__')) return
+        schemaType[k] = schemaType[k].map(s=>Object.assign({}, s, {type: genericType(schemaType, s.type, generics)}))
+      })
+    }
+
+    if (noExtras){
+      const hasExtra = checkHasExtra(schemaType, resp)
+      if (hasExtra) throw new Error(`Has extra params`)
+    }
+
     Object.keys(schemaType).forEach(k=>{
       if (k.startsWith('__')) return
-      schemaType[k] = schemaType[k].map(s=>Object.assign({}, s, {type: genericType(schemaType, s.type, generics)}))
+      typeCheck(schema, schemaType[k], resp[k], k, {noExtras})
     })
   }
-
-  if (noExtras){
-    const hasExtra = checkHasExtra(schemaType, resp)
-    if (hasExtra) throw new Error(`Has extra params`)
-  }
-
-  Object.keys(schemaType).forEach(k=>{
-    if (k.startsWith('__')) return
-    typeCheck(schema, schemaType[k], resp[k], k, {noExtras})
-  })
   return true
 }
 function typeCheck(schema, fullTypeDef, o, k, options){

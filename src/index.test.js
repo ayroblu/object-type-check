@@ -205,20 +205,20 @@ describe('Extra special checks', ()=>{
       new Schema(null)
     })
   })
-  it('throws on function spec', ()=>{
-    assert.throws(()=>{
-      const partialSchema = {
-        func(input){
-          return input > 1
-        },
-        Basic: {
-          name: {type: 'string'},
-        },
-      }
-      const matcher = new Schema(partialSchema)
-      matcher.check('Basic', {name: 'hi'})
-    })
-  })
+  //it('throws on function spec', ()=>{
+  //  assert.throws(()=>{
+  //    const partialSchema = {
+  //      func(input){
+  //        return input > 1
+  //      },
+  //      Basic: {
+  //        name: {type: 'string'},
+  //      },
+  //    }
+  //    const matcher = new Schema(partialSchema)
+  //    matcher.check('Basic', {name: 'hi'})
+  //  })
+  //})
   it('throws non object schema', ()=>{
     assert.throws(()=>{
       const partialSchema = {
@@ -304,6 +304,51 @@ describe('throws on bad generics', ()=>{
     })
     it('safe: ' + name, ()=>{
       const matcher = new Schema(gSchema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(!isValid)
+    })
+  })
+})
+
+const funcSchema = {
+  User: {
+    name: 'string',
+    age: 'even',
+  },
+  even(input){
+    return input % 2 === 0
+  },
+}
+describe('adding functions', ()=>{
+  [
+    ['checks basic even function', 'even', 0]
+  , ['checks user function', 'User', {name: 'hi', age: 0}]
+  ].forEach(([name, type, o])=>{
+    it(name, ()=>{
+      const matcher = new Schema(funcSchema)
+      const result = matcher.check(type, o)
+      assert(result)
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(funcSchema)
+      const isValid = matcher.safeCheck(type, o)
+      assert(isValid)
+    })
+  })
+})
+describe('throws on bad functions', ()=>{
+  [
+    ['checks basic even function', 'even', 1]
+  , ['checks invalid user function', 'User', {name: 'hi', age: 1}]
+  ].forEach(([name, type, o])=>{
+    it(name, ()=>{
+      assert.throws(()=>{
+        const matcher = new Schema(funcSchema)
+        matcher.check(type, o)
+      })
+    })
+    it('safe: ' + name, ()=>{
+      const matcher = new Schema(funcSchema)
       const isValid = matcher.safeCheck(type, o)
       assert(!isValid)
     })
