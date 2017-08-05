@@ -27,7 +27,7 @@ function checkSchema(o){
     Object.keys(o[k]).forEach(n=>{
       if (n.startsWith('__')) return
       o[k][n].forEach(v=>{
-        const isPrimitive = safeCheck(schema, 'Type|LiteralType', v)
+        const isPrimitive = safeCheck(schema, 'function|Type|LiteralType', v)
         if (!isPrimitive){
           check(schema, 'ObjectType', v)
           // Don't check the schema for generic types (e.g. T)

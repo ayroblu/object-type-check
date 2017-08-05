@@ -15,10 +15,11 @@ function parseSchema(schema){
 
 function parseParams(schema, key){
   if (typeof schema[key] === 'function'){
-    throw new Error('Not implemented: functions')
+    // basically don't need to do anything for a function
+    return {key, val: schema[key]}
+    //throw new Error('Not implemented: functions')
   }
   const generics = genericChecker(key)
-    // You need to check that generic type is not specified cause confused
 
   if (typeof schema[key] !== 'object' || !schema[key]) {
     throw new Error(`Object sub: ${key} is not an object`)
@@ -54,13 +55,5 @@ function parseParams(schema, key){
   }
   return {key: generics ? generics.name : key, val: oType}
 }
-
-// parse generics: 
-// Some<Thing, Else> -> Some<T1, T2>
-// line 6: newSchema[k] = {...newSchema[k]} // change here
-// if I rename them, then I might overlap with an existing type
-// Also, this syntax supports overloading - don't support this
-// Just use a sub property
-// Okay, now when I do a check, maybe I need to do a property replacement
 
 module.exports = parseSchema
